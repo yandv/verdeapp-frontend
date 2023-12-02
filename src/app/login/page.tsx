@@ -1,17 +1,23 @@
-import { Box, Button, Container, FormControl, FormLabel, Heading, Input, Link, Stack, Text } from '@chakra-ui/react';
-
-import { PasswordField } from './PasswordField';
+'use client';
+import React from 'react';
+import { Box, Container, Heading, Link, Stack } from '@chakra-ui/react';
+import LoginForm from './LoginForm';
+import RegisterForm from './RegisterForm';
 
 export default function Login() {
+  const [login, setLogin] = React.useState(true);
+
+  const handleChange = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    setLogin(!login);
+    event.preventDefault();
+  };
+
   return (
     <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
       <Stack spacing="8">
         <Stack spacing="6">
           <Stack spacing={{ base: '2', md: '3' }} textAlign="center">
-            <Heading size={{ base: 'xs', md: 'sm' }}>Log in to your account</Heading>
-            <Text>
-              Não possui uma conta? <Link href="#"></Link>
-            </Text>
+            <Heading size={{ base: 'xs', md: 'sm' }}>Verde-App Auth</Heading>
           </Stack>
         </Stack>
         <Box
@@ -21,18 +27,10 @@ export default function Login() {
           boxShadow={{ base: 'none', sm: 'md' }}
           borderRadius={{ base: 'none', sm: 'xl' }}
         >
-          <Stack spacing="6">
-            <Stack spacing="5">
-              <FormControl>
-                <FormLabel htmlFor="email">Email</FormLabel>
-                <Input id="email" type="email" />
-              </FormControl>
-              <PasswordField />
-            </Stack>
-            <Stack spacing="6">
-              <Button>Sign in</Button>
-            </Stack>
-          </Stack>
+          {login ? <LoginForm /> : <RegisterForm />}
+          <Link href="#" onClick={handleChange}>
+            {login ? 'Não possui uma conta? Cadastre-se aqui!' : 'Já possui uma conta? Faça login aqui!'}
+          </Link>
         </Box>
       </Stack>
     </Container>
