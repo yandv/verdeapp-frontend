@@ -16,6 +16,7 @@ import { forwardRef, useRef } from 'react';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 
 interface PasswordInputProps extends InputProps {
+  title?: string;
   disclosure?: {
     isOpen: boolean;
     onToggle: () => void;
@@ -38,7 +39,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>((p
 
   return (
     <FormControl>
-      <FormLabel htmlFor="password">Password</FormLabel>
+      <FormLabel htmlFor="password">{props.title || 'Senha'}</FormLabel>
       <InputGroup>
         <Input
           id="password"
