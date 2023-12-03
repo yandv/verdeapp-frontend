@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import { Box, Container, Heading, Link, Stack } from '@chakra-ui/react';
-import LoginForm from '../../components/LoginForm';
-import RegisterForm from '../../components/RegisterForm';
+import LoginForm from '../../components/login/LoginForm';
+import RegisterForm from '../../components/login/RegisterForm';
 
 export default function Login() {
   const [login, setLogin] = React.useState(true);
