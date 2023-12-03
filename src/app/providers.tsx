@@ -1,10 +1,8 @@
-// app/providers.tsx
 'use client';
 
+import { AuthProvider } from '@/context/AuthContext';
 import { CacheProvider } from '@chakra-ui/next-js';
 import { ChakraProvider } from '@chakra-ui/react';
-
-import { useState } from 'react';
 
 export function ChakraContextProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -15,9 +13,5 @@ export function ChakraContextProvider({ children }: { children: React.ReactNode 
 }
 
 export function AuthContextProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <CacheProvider>
-      <ChakraProvider>{children}</ChakraProvider>
-    </CacheProvider>
-  );
+  return <AuthProvider>{children}</AuthProvider>;
 }

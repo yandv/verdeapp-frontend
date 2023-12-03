@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button, FormControl, FormErrorMessage, FormLabel, Input, Stack, useToast } from '@chakra-ui/react';
 import { PasswordInput } from './PasswordInput';
-import UserService from '@/services/user.service';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function LoginForm() {
   const toast = useToast();
+  const { signIn } = React.useContext(AuthContext);
 
   const [loading, setLoading] = React.useState(false);
   const [user, setUser] = React.useState('');
@@ -46,14 +47,10 @@ export default function LoginForm() {
     }
 
     setLoading(true);
-
     toast.promise(
       new Promise((resolve, reject) => {
-        UserService.authUser(user, password)
-          .then(() => {
-            setLoading(false);
-            resolve(200);
-          })
+        signIn(user, password, "/dashboard")
+          .then(() => resolve(200))
           .catch((error) => {
             if (error.response.status === 404) {
               setIsUserNotFound(true);
@@ -67,7 +64,7 @@ export default function LoginForm() {
       }),
       {
         loading: { title: 'Logando...', position: 'top', description: 'Aguarde enquanto estamos te autenticando...' },
-        success: { title: 'Sucesso!', position: 'top', description: 'Logado com sucesso, redirecionando...' },
+        success: { title: 'Sucesso!', position: 'top', duration: 1000, description: 'Logado com sucesso, redirecionando...' },
         error: { title: 'Falha!', position: 'top', description: 'Houve um erro ao autenticar.' },
       }
     );

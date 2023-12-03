@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 
 import React from 'react';
-import UserService from '../services/user.service';
+import UserService from '../../services/user.service';
 import { PasswordInput } from './PasswordInput';
 
 export default function RegisterForm() {
@@ -128,7 +128,12 @@ export default function RegisterForm() {
           position: 'top',
           description: 'Aguarde enquanto estamos te registrando...',
         },
-        success: { title: 'Sucesso!', position: 'top', description: 'Logado com sucesso, redirecionando...' },
+        success: {
+          title: 'Sucesso!',
+          position: 'top',
+          duration: 1000,
+          description: 'Logado com sucesso, redirecionando...',
+        },
         error: { title: 'Falha!', position: 'top', description: 'Houve um erro ao registrar sua conta.' },
       }
     );
