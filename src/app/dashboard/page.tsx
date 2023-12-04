@@ -17,14 +17,23 @@ export default function Chat() {
   const { user } = React.useContext(AuthContext);
 
   const [socket, setSocket] = React.useState<Socket | null>(null);
+  const [loadingConnection, setLoadingConnection] = React.useState(false);
 
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState('');
 
+  const [typingUsers, setTypingUsers] = React.useState<number[]>([]);
+  const [typingTimeout, setTypingTimeout] = React.useState<NodeJS.Timeout | null>(null);
+  const [isTyping, setIsTyping] = React.useState(false);
+
   const ref = React.useRef<HTMLDivElement>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (typingTimeout) clearTimeout(typingTimeout);
+
+    setIsTyping(true);
     setCurrentMessage(event.target.value);
+    setTypingTimeout(setTimeout(() => setIsTyping(false), 1000));
   };
 
   const handleSubmit = (
@@ -32,9 +41,7 @@ export default function Chat() {
   ) => {
     event.preventDefault();
 
-    if (!currentMessage.trim().length) return;
-
-    if (!socket) return;
+    if (!currentMessage.trim().length || !socket) return;
 
     setCurrentMessage('');
     setMessages((prevMessages) => [
@@ -45,29 +52,45 @@ export default function Chat() {
   };
 
   React.useEffect(() => {
-    console.log('Trying to initialize the connection with the server...');
-    const socket = io(process.env.WEBSOCKET_URL || 'http://localhost:8080/chat', {
-      extraHeaders: {
-        Authorization: 'Bearer ' + user?.token,
-      },
-    });
+    function startConnection() {
+      if (loadingConnection) return;
 
-    socket.on('connection', () => {
-      console.log('The connection was successful established!');
-      setSocket(socket);
-
-      socket.on('message', (message) => {
-        setMessages((prevMessages) => [...prevMessages, message]);
+      console.log('Trying to initialize the connection with the server...');
+      setLoadingConnection(true);
+      const socket = io(process.env.WEBSOCKET_URL || 'http://localhost:8080/chat', {
+        extraHeaders: {
+          Authorization: 'Bearer ' + user?.token,
+        },
       });
 
-      socket.on('disconnect', () => {
-        console.log('The connection was disconnected from the server!');
-        setSocket(null);
+      socket.on('connection', () => {
+        console.log('The connection was successful established!');
+        setSocket(socket);
+        setLoadingConnection(false);
+
+        socket.on('message', (message) => {
+          setMessages((prevMessages) => [...prevMessages, message]);
+          console.log(message);
+        });
+
+        socket.on('disconnect', () => {
+          console.log('The connection was disconnected from the server!');
+          setSocket(null);
+        });
       });
-    });
+
+      return socket;
+    }
+
+    let socket: Socket | undefined;
+
+    setTimeout(() => {
+      socket = startConnection();
+      console.log(socket);
+    }, 700);
 
     return () => {
-      socket.disconnect();
+      if (socket) socket.disconnect();
     };
   }, []);
 

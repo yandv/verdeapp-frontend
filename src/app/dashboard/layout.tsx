@@ -172,7 +172,7 @@ const MobileNav = ({ onOpen, user, ...rest }: MobileProps) => {
                 Settings
               </MenuItem>
               <MenuDivider />
-              <MenuItem onClick={() => logout('/login')}>Sign out</MenuItem>
+              <MenuItem as={Link} href="/login" onClick={() => logout()}>Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>

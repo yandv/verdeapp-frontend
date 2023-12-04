@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             token: response.data.token,
             user: response.data.user,
           });
-          
+
           setTimeout(() => {
             if (redirectTo) router.push(redirectTo);
           }, 750);
@@ -74,12 +74,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function logout(redirecTo?: string) {
-    setUser(null);
-
     destroyCookie(undefined, 'verdeapp.token');
     destroyCookie(undefined, 'verdeapp.user');
-
+    
     if (redirecTo) router.push(redirecTo);
+
+    setUser(null);
   }
 
   return (
