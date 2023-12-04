@@ -6,6 +6,7 @@ import { Socket } from 'socket.io-client';
 import { Flex, Avatar, AvatarBadge, Text, Input, Button, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { AuthContext } from '@/context/AuthContext';
 import { FaArrowRight } from 'react-icons/fa';
+import Channel from '@/entities/channel.entity';
 
 interface Message {
   authorId: number;
@@ -19,6 +20,8 @@ export default function Chat() {
   const [socket, setSocket] = React.useState<Socket | null>(null);
   const [loadingConnection, setLoadingConnection] = React.useState(false);
 
+  const [channel, setChannel] = React.useState<Channel | null>(null);
+
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = React.useState('');
 
@@ -31,7 +34,10 @@ export default function Chat() {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (typingTimeout) clearTimeout(typingTimeout);
 
-    setIsTyping(true);
+    if (socket) {
+      socket.emit('typing', { channelId: channel?.id || 1 });
+    }
+
     setCurrentMessage(event.target.value);
     setTypingTimeout(setTimeout(() => setIsTyping(false), 1000));
   };
@@ -54,7 +60,7 @@ export default function Chat() {
   React.useEffect(() => {
     function startConnection() {
       if (loadingConnection) return;
-
+  
       console.log('Trying to initialize the connection with the server...');
       setLoadingConnection(true);
       const socket = io(process.env.WEBSOCKET_URL || 'http://localhost:8080/chat', {
@@ -62,32 +68,28 @@ export default function Chat() {
           Authorization: 'Bearer ' + user?.token,
         },
       });
-
+  
       socket.on('connection', () => {
         console.log('The connection was successful established!');
         setSocket(socket);
         setLoadingConnection(false);
-
+  
         socket.on('message', (message) => {
           setMessages((prevMessages) => [...prevMessages, message]);
           console.log(message);
         });
-
+  
         socket.on('disconnect', () => {
           console.log('The connection was disconnected from the server!');
           setSocket(null);
+          setTimeout(() => startConnection(), 5000);
         });
       });
-
+  
       return socket;
     }
 
-    let socket: Socket | undefined;
-
-    setTimeout(() => {
-      socket = startConnection();
-      console.log(socket);
-    }, 700);
+    let socket: Socket | undefined = startConnection();
 
     return () => {
       if (socket) socket.disconnect();
