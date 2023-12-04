@@ -1,8 +1,7 @@
-import { Box, Center, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import Link from "next/link";
 
 export default function ForbbidenPage() {
-    // horizontal and vertical centered
     return (
         <Box>
             <Flex h="100vh" w="100vw" justify="center" align="center" direction="column">

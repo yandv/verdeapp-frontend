@@ -15,9 +15,11 @@ import {
 import React from 'react';
 import UserService from '../../services/user.service';
 import { PasswordInput } from './PasswordInput';
+import { AuthContext } from '@/context/AuthContext';
 
 export default function RegisterForm() {
   const { isOpen, onToggle } = useDisclosure();
+  const { signIn } = React.useContext(AuthContext);
   const toast = useToast();
 
   const [loading, setLoading] = React.useState(false);
@@ -98,15 +100,11 @@ export default function RegisterForm() {
       new Promise((resolve, reject) => {
         UserService.createUser(email, userName, password)
           .then(() => {
-            UserService.authUser(email, password)
-              .then((response) => {
-                console.log('accessToken', response.data.accessToken);
-                setLoading(false);
-                resolve(200);
-              })
+            signIn(email, password, '/dashboard')
+              .then(() => resolve(200))
               .catch((error) => {
                 setLoading(false);
-                reject(error);
+                reject(error.response.status);
               });
           })
           .catch((error) => {

@@ -28,9 +28,9 @@ import { AuthContext } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import User from '@/entities/user.entity';
-import { DEFAULT_IMAGE_URL } from '@/utils/constants';
-import Link from 'next/link';
 import ForbbidenPage from '@/components/Forbbiden';
+import { DEFAULT_AVATAR_URL } from '@/utils/constants';
+import Link from 'next/link';
 
 interface LinkItemProps {
   name: string;
@@ -54,12 +54,14 @@ interface SidebarProps extends BoxProps {
 }
 
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Chat', icon: FiHome, redirectTo: '/' },
-  { name: 'Amigos', icon: FiTrendingUp, redirectTo: 'friends' },
-  { name: 'Settings', icon: FiSettings, redirectTo: 'settings' },
+  { name: 'Chat', icon: FiHome, redirectTo: '/dashboard/' },
+  { name: 'Amigos', icon: FiTrendingUp, redirectTo: '/dashboard/friends' },
+  { name: 'Settings', icon: FiSettings, redirectTo: '/dashboard/settings' },
 ];
 
 const SidebarContent = ({ onClose, user, ...rest }: SidebarProps) => {
+  const router = useRouter();
+
   return (
     <Box
       transition="3s ease"
@@ -78,9 +80,9 @@ const SidebarContent = ({ onClose, user, ...rest }: SidebarProps) => {
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon}>
-          {link.name}
-        </NavItem>
+        <Link key={link.name} href={link.redirectTo}>
+          <NavItem icon={link.icon}>{link.name}</NavItem>
+        </Link>
       ))}
     </Box>
   );
@@ -88,7 +90,7 @@ const SidebarContent = ({ onClose, user, ...rest }: SidebarProps) => {
 
 const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
   return (
-    <Box as="a" href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
+    <Box style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
       <Flex
         align="center"
         p="4"
@@ -119,6 +121,8 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
 };
 
 const MobileNav = ({ onOpen, user, ...rest }: MobileProps) => {
+  const { logout } = React.useContext(AuthContext);
+
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -148,7 +152,7 @@ const MobileNav = ({ onOpen, user, ...rest }: MobileProps) => {
           <Menu>
             <MenuButton py={2} transition="all 0.3s" _focus={{ boxShadow: 'none' }}>
               <HStack>
-                <Avatar size={'sm'} src={user?.imageUrl || DEFAULT_IMAGE_URL} />
+                <Avatar size={'sm'} src={user?.imageUrl || DEFAULT_AVATAR_URL} />
                 <VStack display={{ base: 'none', md: 'flex' }} alignItems="flex-start" spacing="1px" ml="2">
                   <Text fontSize="sm">{user?.userName}</Text>
                 </VStack>
@@ -161,10 +165,14 @@ const MobileNav = ({ onOpen, user, ...rest }: MobileProps) => {
               bg={useColorModeValue('white', 'gray.900')}
               borderColor={useColorModeValue('gray.200', 'gray.700')}
             >
-              <MenuItem>Profile</MenuItem>
-              <MenuItem>Settings</MenuItem>
+              <MenuItem as={Link} href="/dashboard/my-profile">
+                Profile
+              </MenuItem>
+              <MenuItem as={Link} href="/dashboard/settings">
+                Settings
+              </MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem onClick={() => logout('/login')}>Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>
@@ -175,11 +183,10 @@ const MobileNav = ({ onOpen, user, ...rest }: MobileProps) => {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const router = useRouter();
   const { user } = React.useContext(AuthContext);
 
   if (!user) {
-    return <ForbbidenPage />
+    return <ForbbidenPage />;
   }
 
   return (
